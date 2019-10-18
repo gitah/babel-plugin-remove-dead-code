@@ -37,9 +37,13 @@ exports.default = function (_ref) {
 
       LogicalExpression: {
         exit: function exit(path) {
+          // 当 || 逻辑表达式的左值不是对象字面量时，babel@6 无法准确求值
+          var node = path.node;
+          if (node.operator === '||' && !t.isLiteral(node.left)) {
+            return
+          }
           if (replacePathIfConfident(path)) return;
 
-          var node = path.node;
           if (node.operator !== '&&') return;
 
           var leftTruthy = path.get('left').evaluateTruthy();
